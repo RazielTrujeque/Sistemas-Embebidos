@@ -7,22 +7,20 @@
 #include "driver/i2c_slave.h"
 #include "driver/gpio.h"
 
-//slave manda al respuesta de Header 0x2F, CMD 0x28, seguido de un float de 4 bytes con la temperatura leída del BMP280. El master debe mostrar esta temperatura por UART. El master reintenta hasta 3 veces si no recibe respuesta o si la respuesta es incorrecta. El slave debe ser capaz de recuperarse de errores y seguir funcionando correctamente.
 #define HEADER_RESP 0x2F
 #define CMD         0x28
+#define HEADER_REQ  0x1F
 
-#define ECHO_UART_PORT_NUM   UART_NUM_0
-#define BUF_SIZE             1024
+#define ECHO_UART_PORT_NUM  UART_NUM_0
+#define BUF_SIZE            1024
 
 #define BMP_SDA     21
 #define BMP_SCL     22
 #define BMP280_ADDR 0x77
 
-#define SLAVE_SDA   18
-#define SLAVE_SCL   19
-#define SLAVE_ADDR  0x42
-
-#define HEADER_REQ  0x1F
+#define SLAVE_SDA  18
+#define SLAVE_SCL  19
+#define SLAVE_ADDR 0x42
 
 static i2c_master_bus_handle_t bmp_bus;
 static i2c_master_dev_handle_t bmp_sensor;
@@ -41,14 +39,10 @@ void init_uart(void) {
         .flow_ctrl  = UART_HW_FLOWCTRL_DISABLE,
         .source_clk = UART_SCLK_DEFAULT,
     };
-    int intr_alloc_flags = 0;
-#if CONFIG_UART_ISR_IN_IRAM
-    intr_alloc_flags = ESP_INTR_FLAG_IRAM;
-#endif
-    ESP_ERROR_CHECK(uart_driver_install(ECHO_UART_PORT_NUM, BUF_SIZE * 2, 0, 0, NULL, intr_alloc_flags));
-    ESP_ERROR_CHECK(uart_param_config(ECHO_UART_PORT_NUM, &uart_config));
-    ESP_ERROR_CHECK(uart_set_pin(ECHO_UART_PORT_NUM, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE,
-                                                     UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
+    uart_driver_install(ECHO_UART_PORT_NUM, BUF_SIZE * 2, 0, 0, NULL, 0);
+    uart_param_config(ECHO_UART_PORT_NUM, &uart_config);
+    uart_set_pin(ECHO_UART_PORT_NUM, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE,
+                                     UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
 }
 
 void puts_uart(uart_port_t uart_num, char *str) {
@@ -75,7 +69,7 @@ void float_to_str(float val, char *buf) {
     buf[i]   = '\0';
 }
 
-static bool IRAM_ATTR on_recv(i2c_slave_dev_handle_t handle,const i2c_slave_rx_done_event_data_t *edata,void *arg) {
+static bool IRAM_ATTR on_recv(i2c_slave_dev_handle_t handle, const i2c_slave_rx_done_event_data_t *edata, void *arg) {
     BaseType_t woken = pdFALSE;
     xQueueSendFromISR((QueueHandle_t)arg, edata, &woken);
     return woken == pdTRUE;
@@ -83,24 +77,28 @@ static bool IRAM_ATTR on_recv(i2c_slave_dev_handle_t handle,const i2c_slave_rx_d
 
 static void bmp280_init(void) {
     i2c_master_bus_config_t b = {
-        .i2c_port = I2C_NUM_0, 
-        .sda_io_num = BMP_SDA, 
+        .i2c_port = I2C_NUM_0,
+        .sda_io_num = BMP_SDA,
         .scl_io_num = BMP_SCL,
-        .clk_source = I2C_CLK_SRC_DEFAULT, 
+        .clk_source = I2C_CLK_SRC_DEFAULT,
         .glitch_ignore_cnt = 7,
         .flags.enable_internal_pullup = true,
     };
-    ESP_ERROR_CHECK(i2c_new_master_bus(&b, &bmp_bus));
+    i2c_new_master_bus(&b, &bmp_bus);
+
     i2c_device_config_t d = {
         .dev_addr_length = I2C_ADDR_BIT_LEN_7,
-        .device_address = BMP280_ADDR, .scl_speed_hz = 100000,
+        .device_address  = BMP280_ADDR,
+        .scl_speed_hz    = 100000,
     };
-    ESP_ERROR_CHECK(i2c_master_bus_add_device(bmp_bus, &d, &bmp_sensor));
+    i2c_master_bus_add_device(bmp_bus, &d, &bmp_sensor);
+
     uint8_t reg = 0x88, cal[6];
-    ESP_ERROR_CHECK(i2c_master_transmit_receive(bmp_sensor, &reg, 1, cal, 6, 1000));
+    i2c_master_transmit_receive(bmp_sensor, &reg, 1, cal, 6, 1000);
     T1 = (cal[1]<<8)|cal[0]; T2 = (cal[3]<<8)|cal[2]; T3 = (cal[5]<<8)|cal[4];
+
     uint8_t cmd[2] = {0xF4, 0x27};
-    ESP_ERROR_CHECK(i2c_master_transmit(bmp_sensor, cmd, 2, 1000));
+    i2c_master_transmit(bmp_sensor, cmd, 2, 1000);
     puts_uart(ECHO_UART_PORT_NUM, "\r\nBMP280 OK\r\n");
 }
 
@@ -116,23 +114,24 @@ static float bmp280_read(void) {
 
 static void slave_init_device(void) {
     i2c_slave_config_t cfg = {
-        .i2c_port = I2C_NUM_1, 
-        .sda_io_num = SLAVE_SDA, 
-        .scl_io_num = SLAVE_SCL,
-        .clk_source = I2C_CLK_SRC_DEFAULT, 
+        .i2c_port       = I2C_NUM_1,
+        .sda_io_num     = SLAVE_SDA,
+        .scl_io_num     = SLAVE_SCL,
+        .clk_source     = I2C_CLK_SRC_DEFAULT,
         .send_buf_depth = 128,
-        .slave_addr = SLAVE_ADDR, 
-        .addr_bit_len = I2C_ADDR_BIT_LEN_7,
+        .slave_addr     = SLAVE_ADDR,
+        .addr_bit_len   = I2C_ADDR_BIT_LEN_7,
     };
-    ESP_ERROR_CHECK(i2c_new_slave_device(&cfg, &slave_handle));
+    i2c_new_slave_device(&cfg, &slave_handle);
     gpio_set_pull_mode(SLAVE_SDA, GPIO_PULLUP_ONLY);
     gpio_set_pull_mode(SLAVE_SCL, GPIO_PULLUP_ONLY);
+
     i2c_slave_event_callbacks_t cbs = { .on_recv_done = on_recv };
-    ESP_ERROR_CHECK(i2c_slave_register_event_callbacks(slave_handle, &cbs, rx_queue));
-    ESP_ERROR_CHECK(i2c_slave_receive(slave_handle, rx_buf, 2));
+    i2c_slave_register_event_callbacks(slave_handle, &cbs, rx_queue);
+    i2c_slave_receive(slave_handle, rx_buf, 2);
 }
 
-static void tarea_slave(void *arg){
+static void tarea_slave(void *arg) {
     puts_uart(ECHO_UART_PORT_NUM, "\r\nSlave listo\r\n");
     char temp_str[16];
     i2c_slave_rx_done_event_data_t evt;
@@ -172,7 +171,6 @@ static void tarea_slave(void *arg){
 void app_main(void) {
     init_uart();
     bmp280_init();
-
     rx_queue = xQueueCreate(4, sizeof(i2c_slave_rx_done_event_data_t));
     slave_init_device();
     xTaskCreate(tarea_slave, "tarea_slave", ECHO_TASK_STACK_SIZE, NULL, 10, NULL);
