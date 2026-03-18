@@ -4,17 +4,19 @@
 #include "driver/uart.h"
 #include "driver/i2c_master.h"
 
+//master hace al solicitud con Header 0x1F, CMD 0x28
+#define HEADER_REQ  0x1F
+#define CMD         0x28
+
 #define ECHO_UART_PORT_NUM   UART_NUM_0
-#define ECHO_TASK_STACK_SIZE 4096
 #define BUF_SIZE             1024
 
 #define MASTER_SDA  21
 #define MASTER_SCL  22
 #define SLAVE_ADDR  0x42
 
-#define HEADER_REQ  0x1F
+
 #define HEADER_RESP 0x2F
-#define CMD         0x28
 #define MAX_RETRIES 2
 
 static i2c_master_bus_handle_t master_bus;

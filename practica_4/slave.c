@@ -7,9 +7,11 @@
 #include "driver/i2c_slave.h"
 #include "driver/gpio.h"
 
+//slave manda al respuesta de Header 0x2F, CMD 0x28, seguido de un float de 4 bytes con la temperatura leída del BMP280. El master debe mostrar esta temperatura por UART. El master reintenta hasta 3 veces si no recibe respuesta o si la respuesta es incorrecta. El slave debe ser capaz de recuperarse de errores y seguir funcionando correctamente.
+#define HEADER_RESP 0x2F
+#define CMD         0x28
+
 #define ECHO_UART_PORT_NUM   UART_NUM_0
-#define ECHO_UART_BAUD_RATE  115200
-#define ECHO_TASK_STACK_SIZE 4096
 #define BUF_SIZE             1024
 
 #define BMP_SDA     21
@@ -21,8 +23,6 @@
 #define SLAVE_ADDR  0x42
 
 #define HEADER_REQ  0x1F
-#define HEADER_RESP 0x2F
-#define CMD         0x28
 
 static i2c_master_bus_handle_t bmp_bus;
 static i2c_master_dev_handle_t bmp_sensor;
@@ -34,7 +34,7 @@ static int16_t  T2, T3;
 
 void init_uart(void) {
     uart_config_t uart_config = {
-        .baud_rate  = ECHO_UART_BAUD_RATE,
+        .baud_rate  = 115200,
         .data_bits  = UART_DATA_8_BITS,
         .parity     = UART_PARITY_DISABLE,
         .stop_bits  = UART_STOP_BITS_1,
