@@ -3,7 +3,7 @@
   "idf.openOcdConfigs": [
     "board/esp32-wrover-kit-3.3v.cfg"
   ],
-  "idf.portWin": "detect",
+  "idf.portWin": "COM5",
   "idf.currentSetup": "C:/ESP32_IDF/Espressif/frameworks/esp-idf-v5.5.3/",
   "idf.customExtraVars": {
     "IDF_TARGET": "esp32"
@@ -13,5 +13,6 @@
     "--background-index",
     "--query-driver=**",
     "--compile-commands-dir=c:\\Users\\MADERAS JR\\Documents\\GitHub\\Sistemas-Embebidos\\uart_echo_ejemplo\\build"
-  ]
+  ],
+  "idf.flashType": "UART"
 }
