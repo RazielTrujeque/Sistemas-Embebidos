@@ -1,0 +1,11 @@
+{
+  "cmake.sourceDirectory": "C:/Users/MADERAS JR/Documents/GitHub/Sistemas-Embebidos/ejercios_tareas/ejercicio1",
+  "idf.currentSetup": "C:/ESP32_IDF/Espressif/frameworks/esp-idf-v5.5.3/",
+  "idf.portWin": "COM5",
+  "clangd.path": "C:\\ESP32_IDF\\Espressif\\tools\\esp-clang\\esp-19.1.2_20250312\\esp-clang\\bin\\clangd.exe",
+  "clangd.arguments": [
+    "--background-index",
+    "--query-driver=**",
+    "--compile-commands-dir=c:\\Users\\MADERAS JR\\Documents\\GitHub\\Sistemas-Embebidos\\ejercios_tareas\\build"
+  ]
+}
