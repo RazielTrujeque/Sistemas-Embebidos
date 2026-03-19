@@ -56,6 +56,5 @@
   "C_Cpp_Runner.showCompilationTime": false,
   "C_Cpp_Runner.useLinkTimeOptimization": false,
   "C_Cpp_Runner.msvcSecureNoWarnings": false,
-  "idf.currentSetup": "C:/ESP32_IDF/Espressif/frameworks/esp-idf-v5.5.3/",
-  "cmake.sourceDirectory": "C:/Users/MADERAS JR/Documents/GitHub/Sistemas-Embebidos/uart_echo_ejemplo"
+  "idf.currentSetup": "C:/ESP32_IDF/Espressif/frameworks/esp-idf-v5.5.3/"
 }
