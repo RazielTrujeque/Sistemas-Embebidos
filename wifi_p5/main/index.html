@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sudoku ESP32</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+  <h1>Sudoku ESP32</h1>
+
+  <p id="timer">Tiempo: <span id="segundos">0</span> segundos</p>
+
+  <!--TABLERO-->
+
+  <form method="POST" action="/place">
+    <label>Fila (1-9):
+      <input type="number" name="row" min="1" max="9" value="1" required>
+    </label>
+    <label>Columna (1-9):
+      <input type="number" name="col" min="1" max="9" value="1" required>
+    </label>
+    <label>Numero (1-9):
+      <input type="number" name="num" min="1" max="9" value="1" required>
+    </label>
+    <button type="submit">Colocar</button>
+  </form>
+
+  <form method="POST" action="/restart">
+    <button type="submit">Nueva partida</button>
+  </form>
+
+</body>
+</html>

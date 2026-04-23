@@ -1,0 +1,135 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #f0f0f0;
+  color: #222;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  gap: 16px;
+}
+
+h1 {
+  font-size: 1.6em;
+  color: #333;
+}
+
+#timer {
+  font-size: 1em;
+  color: #555;
+}
+
+#timer span {
+  font-weight: bold;
+  color: #000;
+}
+
+/* Tablero */
+table {
+  border-collapse: collapse;
+  border: 3px solid #333;
+}
+
+td {
+  width: 44px;
+  height: 44px;
+  text-align: center;
+  font-size: 1.1em;
+  border: 1px solid #aaa;
+  background: #fff;
+}
+
+td:nth-child(3n)    { border-right:  3px solid #333; }
+tr:nth-child(3n) td { border-bottom: 3px solid #333; }
+
+td.fija  { background: #dce3f0; color: #000; font-weight: bold; }
+td.user  { background: #fff;    color: #1a6fbf; font-weight: bold; }
+td.vacia { background: #fff;    color: #ccc; }
+
+/* Formulario */
+form {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  justify-content: center;
+  background: #fff;
+  padding: 14px 18px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 100%;
+  max-width: 420px;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.8em;
+  color: #555;
+  gap: 4px;
+}
+
+input[type=number] {
+  width: 56px;
+  padding: 6px 4px;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 1em;
+  background: #fafafa;
+  -moz-appearance: textfield;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+input[type=number]:focus {
+  outline: none;
+  border-color: #1a6fbf;
+}
+
+button[type=submit] {
+  padding: 8px 18px;
+  border: none;
+  border-radius: 4px;
+  background: #1a6fbf;
+  color: #fff;
+  font-size: 0.9em;
+  cursor: pointer;
+  align-self: flex-end;
+}
+
+button[type=submit]:hover  { background: #155fa0; }
+button[type=submit]:active { opacity: 0.85; }
+
+form:last-of-type button {
+  background: #fff;
+  border: 1px solid #999;
+  color: #333;
+}
+
+form:last-of-type button:hover {
+  background: #eee;
+}
+
+/* Mensaje final */
+#mensaje {
+  font-size: 1em;
+  font-weight: bold;
+  color: #fff;
+  background: #1a6fbf;
+  padding: 12px 24px;
+  border-radius: 6px;
+  text-align: center;
+  display: none;
+  width: 100%;
+  max-width: 420px;
+}
